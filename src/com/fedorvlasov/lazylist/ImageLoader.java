@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Stack;
 import android.app.Activity;
 import android.content.Context;
@@ -17,9 +16,7 @@ import android.widget.ImageView;
 
 public class ImageLoader {
     
-    //the simplest in-memory cache implementation. This should be replaced with something like SoftReference or BitmapOptions.inPurgeable(since 1.6)
-    private HashMap<String, Bitmap> cache=new HashMap<String, Bitmap>();
-    
+    MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
     
     public ImageLoader(Context context){
@@ -32,8 +29,9 @@ public class ImageLoader {
     final int stub_id=R.drawable.stub;
     public void DisplayImage(String url, Activity activity, ImageView imageView)
     {
-        if(cache.containsKey(url))
-            imageView.setImageBitmap(cache.get(url));
+        Bitmap bitmap=memoryCache.get(url);
+        if(bitmap!=null)
+            imageView.setImageBitmap(bitmap);
         else
         {
             queuePhoto(url, activity, imageView);
@@ -160,7 +158,7 @@ public class ImageLoader {
                             photoToLoad=photosQueue.photosToLoad.pop();
                         }
                         Bitmap bmp=getBitmap(photoToLoad.url);
-                        cache.put(photoToLoad.url, bmp);
+                        memoryCache.put(photoToLoad.url, bmp);
                         Object tag=photoToLoad.imageView.getTag();
                         if(tag!=null && ((String)tag).equals(photoToLoad.url)){
                             BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad.imageView);
@@ -195,10 +193,7 @@ public class ImageLoader {
     }
 
     public void clearCache() {
-        //clear memory cache
-        cache.clear();
-        
-        //clear SD cache
+        memoryCache.clear();
         fileCache.clear();
     }
 
