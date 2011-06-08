@@ -20,19 +20,13 @@ public class ImageLoader {
     //the simplest in-memory cache implementation. This should be replaced with something like SoftReference or BitmapOptions.inPurgeable(since 1.6)
     private HashMap<String, Bitmap> cache=new HashMap<String, Bitmap>();
     
-    private File cacheDir;
+    FileCache fileCache;
     
     public ImageLoader(Context context){
         //Make the background thead low priority. This way it will not affect the UI performance
         photoLoaderThread.setPriority(Thread.NORM_PRIORITY-1);
         
-        //Find the dir to save cached images
-        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
-            cacheDir=new File(android.os.Environment.getExternalStorageDirectory(),"LazyList");
-        else
-            cacheDir=context.getCacheDir();
-        if(!cacheDir.exists())
-            cacheDir.mkdirs();
+        fileCache=new FileCache(context);
     }
     
     final int stub_id=R.drawable.stub;
@@ -64,9 +58,7 @@ public class ImageLoader {
     
     private Bitmap getBitmap(String url) 
     {
-        //I identify images by hashcode. Not a perfect solution, good for the demo.
-        String filename=String.valueOf(url.hashCode());
-        File f=new File(cacheDir, filename);
+        File f=fileCache.getFile(url);
         
         //from SD cache
         Bitmap b = decodeFile(f);
@@ -207,9 +199,7 @@ public class ImageLoader {
         cache.clear();
         
         //clear SD cache
-        File[] files=cacheDir.listFiles();
-        for(File f:files)
-            f.delete();
+        fileCache.clear();
     }
 
 }
