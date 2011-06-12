@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
@@ -71,7 +72,11 @@ public class ImageLoader {
         //from web
         try {
             Bitmap bitmap=null;
-            InputStream is=new URL(url).openStream();
+            URL imageUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
+            conn.setConnectTimeout(30000);
+            conn.setReadTimeout(30000);
+            InputStream is=conn.getInputStream();
             OutputStream os = new FileOutputStream(f);
             Utils.CopyStream(is, os);
             os.close();
