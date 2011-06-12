@@ -54,7 +54,6 @@ public class LazyAdapter extends BaseAdapter {
             holder=(ViewHolder)vi.getTag();
         
         holder.text.setText("item "+position);
-        holder.image.setTag(data[position]);
         imageLoader.DisplayImage(data[position], activity, holder.image);
         return vi;
     }

@@ -7,7 +7,10 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Stack;
+import java.util.WeakHashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,6 +21,7 @@ public class ImageLoader {
     
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
+    private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     
     public ImageLoader(Context context){
         //Make the background thead low priority. This way it will not affect the UI performance
@@ -29,6 +33,7 @@ public class ImageLoader {
     final int stub_id=R.drawable.stub;
     public void DisplayImage(String url, Activity activity, ImageView imageView)
     {
+        imageViews.put(imageView, url);
         Bitmap bitmap=memoryCache.get(url);
         if(bitmap!=null)
             imageView.setImageBitmap(bitmap);
@@ -159,8 +164,8 @@ public class ImageLoader {
                         }
                         Bitmap bmp=getBitmap(photoToLoad.url);
                         memoryCache.put(photoToLoad.url, bmp);
-                        Object tag=photoToLoad.imageView.getTag();
-                        if(tag!=null && ((String)tag).equals(photoToLoad.url)){
+                        String tag=imageViews.get(photoToLoad.imageView);
+                        if(tag!=null && tag.equals(photoToLoad.url)){
                             BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad.imageView);
                             Activity a=(Activity)photoToLoad.imageView.getContext();
                             a.runOnUiThread(bd);
