@@ -171,7 +171,7 @@ public class ImageLoader {
                         memoryCache.put(photoToLoad.url, bmp);
                         String tag=imageViews.get(photoToLoad.imageView);
                         if(tag!=null && tag.equals(photoToLoad.url)){
-                            BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad.imageView);
+                            BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
                             Activity a=(Activity)photoToLoad.imageView.getContext();
                             a.runOnUiThread(bd);
                         }
@@ -191,14 +191,14 @@ public class ImageLoader {
     class BitmapDisplayer implements Runnable
     {
         Bitmap bitmap;
-        ImageView imageView;
-        public BitmapDisplayer(Bitmap b, ImageView i){bitmap=b;imageView=i;}
+        PhotoToLoad photoToLoad;
+        public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
         public void run()
         {
             if(bitmap!=null)
-                imageView.setImageBitmap(bitmap);
+                photoToLoad.imageView.setImageBitmap(bitmap);
             else
-                imageView.setImageResource(stub_id);
+                photoToLoad.imageView.setImageResource(stub_id);
         }
     }
 
