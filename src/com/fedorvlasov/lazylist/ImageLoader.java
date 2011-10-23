@@ -195,6 +195,9 @@ public class ImageLoader {
         public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
         public void run()
         {
+            String tag=imageViews.get(photoToLoad.imageView);
+            if(tag==null || !tag.equals(photoToLoad.url))
+                return;
             if(bitmap!=null)
                 photoToLoad.imageView.setImageBitmap(bitmap);
             else
