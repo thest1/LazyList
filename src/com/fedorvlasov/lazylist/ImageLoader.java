@@ -32,7 +32,7 @@ public class ImageLoader {
     }
     
     final int stub_id=R.drawable.stub;
-    public void DisplayImage(String url, Activity activity, ImageView imageView)
+    public void DisplayImage(String url, ImageView imageView)
     {
         imageViews.put(imageView, url);
         Bitmap bitmap=memoryCache.get(url);
@@ -40,12 +40,12 @@ public class ImageLoader {
             imageView.setImageBitmap(bitmap);
         else
         {
-            queuePhoto(url, activity, imageView);
+            queuePhoto(url, imageView);
             imageView.setImageResource(stub_id);
         }    
     }
         
-    private void queuePhoto(String url, Activity activity, ImageView imageView)
+    private void queuePhoto(String url, ImageView imageView)
     {
         //This ImageView may be used for other images before. So there may be some old tasks in the queue. We need to discard them. 
         photosQueue.Clean(imageView);
