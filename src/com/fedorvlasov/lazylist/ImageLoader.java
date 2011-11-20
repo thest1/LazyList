@@ -150,17 +150,15 @@ public class ImageLoader {
                         synchronized(photosToLoad){
                             photoToLoad=photosToLoad.pop();
                         }
-                        String tag=imageViews.get(photoToLoad.imageView);
-                        if(tag==null || !tag.equals(photoToLoad.url))
+                        if(imageViewReused(photoToLoad))
                             continue;
                         Bitmap bmp=getBitmap(photoToLoad.url);
                         memoryCache.put(photoToLoad.url, bmp);
-                        tag=imageViews.get(photoToLoad.imageView);
-                        if(tag!=null && tag.equals(photoToLoad.url)){
-                            BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
-                            Activity a=(Activity)photoToLoad.imageView.getContext();
-                            a.runOnUiThread(bd);
-                        }
+                        if(imageViewReused(photoToLoad))
+                            continue;
+                        BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
+                        Activity a=(Activity)photoToLoad.imageView.getContext();
+                        a.runOnUiThread(bd);
                     }
                     if(Thread.interrupted())
                         break;
@@ -169,6 +167,13 @@ public class ImageLoader {
                 //allow thread to exit
             }
         }
+    }
+    
+    boolean imageViewReused(PhotoToLoad photoToLoad){
+        String tag=imageViews.get(photoToLoad.imageView);
+        if(tag==null || !tag.equals(photoToLoad.url))
+            return true;
+        return false;
     }
     
     PhotosLoader photoLoaderThread=new PhotosLoader();
@@ -181,8 +186,7 @@ public class ImageLoader {
         public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
         public void run()
         {
-            String tag=imageViews.get(photoToLoad.imageView);
-            if(tag==null || !tag.equals(photoToLoad.url))
+            if(imageViewReused(photoToLoad))
                 return;
             if(bitmap!=null)
                 photoToLoad.imageView.setImageBitmap(bitmap);
