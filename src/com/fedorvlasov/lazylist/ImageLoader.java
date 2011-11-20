@@ -48,9 +48,9 @@ public class ImageLoader {
     private void queuePhoto(String url, ImageView imageView)
     {
         PhotoToLoad p=new PhotoToLoad(url, imageView);
-        synchronized(photosQueue.photosToLoad){
-            photosQueue.photosToLoad.push(p);
-            photosQueue.photosToLoad.notifyAll();
+        synchronized(photosToLoad){
+            photosToLoad.push(p);
+            photosToLoad.notifyAll();
         }
         
         //start thread if it's not started yet
@@ -126,18 +126,13 @@ public class ImageLoader {
         }
     }
     
-    PhotosQueue photosQueue=new PhotosQueue();
-    
     public void stopThread()
     {
         photoLoaderThread.interrupt();
     }
     
     //stores list of photos to download
-    class PhotosQueue
-    {
-        private Stack<PhotoToLoad> photosToLoad=new Stack<PhotoToLoad>();
-    }
+    private Stack<PhotoToLoad> photosToLoad=new Stack<PhotoToLoad>();
     
     class PhotosLoader extends Thread {
         public void run() {
@@ -145,15 +140,15 @@ public class ImageLoader {
                 while(true)
                 {
                     //thread waits until there are any images to load in the queue
-                    if(photosQueue.photosToLoad.size()==0)
-                        synchronized(photosQueue.photosToLoad){
-                            photosQueue.photosToLoad.wait();
+                    if(photosToLoad.size()==0)
+                        synchronized(photosToLoad){
+                            photosToLoad.wait();
                         }
-                    if(photosQueue.photosToLoad.size()!=0)
+                    if(photosToLoad.size()!=0)
                     {
                         PhotoToLoad photoToLoad;
-                        synchronized(photosQueue.photosToLoad){
-                            photoToLoad=photosQueue.photosToLoad.pop();
+                        synchronized(photosToLoad){
+                            photoToLoad=photosToLoad.pop();
                         }
                         String tag=imageViews.get(photoToLoad.imageView);
                         if(tag==null || !tag.equals(photoToLoad.url))
