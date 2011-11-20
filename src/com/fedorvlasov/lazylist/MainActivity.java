@@ -28,7 +28,6 @@ public class MainActivity extends Activity {
     @Override
     public void onDestroy()
     {
-        adapter.imageLoader.stopThread();
         list.setAdapter(null);
         super.onDestroy();
     }
