@@ -47,8 +47,6 @@ public class ImageLoader {
         
     private void queuePhoto(String url, ImageView imageView)
     {
-        //This ImageView may be used for other images before. So there may be some old tasks in the queue. We need to discard them. 
-        photosQueue.Clean(imageView);
         PhotoToLoad p=new PhotoToLoad(url, imageView);
         synchronized(photosQueue.photosToLoad){
             photosQueue.photosToLoad.push(p);
@@ -139,17 +137,6 @@ public class ImageLoader {
     class PhotosQueue
     {
         private Stack<PhotoToLoad> photosToLoad=new Stack<PhotoToLoad>();
-        
-        //removes all instances of this ImageView
-        public void Clean(ImageView image)
-        {
-            for(int j=0 ;j<photosToLoad.size();){
-                if(photosToLoad.get(j).imageView==image)
-                    photosToLoad.remove(j);
-                else
-                    ++j;
-            }
-        }
     }
     
     class PhotosLoader extends Thread {
@@ -168,9 +155,12 @@ public class ImageLoader {
                         synchronized(photosQueue.photosToLoad){
                             photoToLoad=photosQueue.photosToLoad.pop();
                         }
+                        String tag=imageViews.get(photoToLoad.imageView);
+                        if(tag==null || !tag.equals(photoToLoad.url))
+                            continue;
                         Bitmap bmp=getBitmap(photoToLoad.url);
                         memoryCache.put(photoToLoad.url, bmp);
-                        String tag=imageViews.get(photoToLoad.imageView);
+                        tag=imageViews.get(photoToLoad.imageView);
                         if(tag!=null && tag.equals(photoToLoad.url)){
                             BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
                             Activity a=(Activity)photoToLoad.imageView.getContext();
