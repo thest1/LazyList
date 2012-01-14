@@ -29,6 +29,8 @@ public class FileCache {
     
     public void clear(){
         File[] files=cacheDir.listFiles();
+        if(files==null)
+            return;
         for(File f:files)
             f.delete();
     }
