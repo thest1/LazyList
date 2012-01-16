@@ -20,7 +20,11 @@ public class LazyAdapter extends BaseAdapter {
         activity = a;
         data=d;
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        imageLoader=new ImageLoader(activity.getApplicationContext());
+        imageLoader = new ImageLoader(activity.getApplicationContext(), R.drawable.stub, true, true, 70, 70);
+        imageLoader.setMemoryCacheEnabled(true);
+        //imageLoader.setTimeToCleanUnusedFiles(60000);
+        imageLoader.setTimeToCheckChanges(60);
+        imageLoader.setOriginalImageDensity(0);//don't care about densities
     }
 
     public int getCount() {
@@ -43,7 +47,7 @@ public class LazyAdapter extends BaseAdapter {
         TextView text=(TextView)vi.findViewById(R.id.text);;
         ImageView image=(ImageView)vi.findViewById(R.id.image);
         text.setText("item "+position);
-        imageLoader.DisplayImage(data[position], image);
+        imageLoader.displayImage(data[position], image, activity.getApplicationContext());
         return vi;
     }
 }

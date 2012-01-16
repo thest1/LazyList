@@ -5,6 +5,7 @@ import java.util.HashMap;
 import android.graphics.Bitmap;
 
 public class MemoryCache {
+
     private HashMap<String, SoftReference<Bitmap>> cache=new HashMap<String, SoftReference<Bitmap>>();
     
     public Bitmap get(String id){
