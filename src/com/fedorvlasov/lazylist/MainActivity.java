@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     };
     
     private String[] mStrings={
+    		"http://files.skoumal.net/01.png",
             "http://a3.twimg.com/profile_images/670625317/aam-logo-v3-twitter.png",
             "http://a3.twimg.com/profile_images/740897825/AndroidCast-350_normal.png",
             "http://a3.twimg.com/profile_images/121630227/Droid_normal.jpg",
