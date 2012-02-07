@@ -1,11 +1,13 @@
 package com.fedorvlasov.lazylist;
 
 import java.lang.ref.SoftReference;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import android.graphics.Bitmap;
 
 public class MemoryCache {
-    private HashMap<String, SoftReference<Bitmap>> cache=new HashMap<String, SoftReference<Bitmap>>();
+    private Map<String, SoftReference<Bitmap>> cache=Collections.synchronizedMap(new HashMap<String, SoftReference<Bitmap>>());
     
     public Bitmap get(String id){
         if(!cache.containsKey(id))
