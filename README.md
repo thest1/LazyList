@@ -14,4 +14,4 @@ Originally published <a href="http://stackoverflow.com/questions/541966/android-
 
 ## License
 
-LazyList is released under the MIT license.
+LazyList is released under the <a href="https://github.com/thest1/LazyList/blob/master/LICENSE">MIT license</a>.
