@@ -11,6 +11,8 @@ Originally published <a href="http://stackoverflow.com/questions/541966/android-
     ImageLoader imageLoader=new ImageLoader(context);
     ...
     imageLoader.DisplayImage(url, imageView);
+    
+Please create only one instance of ImageLoader and reuse it all around your application. This way image caching will be much more efficient.
 
 ## License
 
