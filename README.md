@@ -7,10 +7,11 @@ A simple library to display images in Android ListView. Images are being downloa
 Originally published <a href="http://stackoverflow.com/questions/541966/android-how-do-i-do-a-lazy-load-of-images-in-listview/3068012#3068012">here</a>.
 
 ## Basic Usage
-
-    ImageLoader imageLoader=new ImageLoader(context);
-    ...
-    imageLoader.DisplayImage(url, imageView);
+``` java
+ImageLoader imageLoader=new ImageLoader(context);
+...
+imageLoader.DisplayImage(url, imageView);
+```
     
 Please create only one instance of ImageLoader and reuse it all around your application. This way image caching will be much more efficient.
 
