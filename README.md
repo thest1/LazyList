@@ -12,6 +12,11 @@ ImageLoader imageLoader=new ImageLoader(context);
 ...
 imageLoader.DisplayImage(url, imageView);
 ```
+Don't forget to add the following permissions to your AndroidManifest.xml:
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     
 Please create only one instance of ImageLoader and reuse it all around your application. This way image caching will be much more efficient.
 
