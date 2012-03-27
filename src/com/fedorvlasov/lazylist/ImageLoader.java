@@ -33,7 +33,10 @@ public class ImageLoader {
     
     final int stub_id=R.drawable.stub;
     public void DisplayImage(String url, ImageView imageView)
-    {
+    {   //prevent the same url and imageview being fetched many times at the same time
+        String tag=imageViews.get(imageView);
+        if(tag != null && tag.equals(url))	return;
+        
         imageViews.put(imageView, url);
         Bitmap bitmap=memoryCache.get(url);
         if(bitmap!=null)
