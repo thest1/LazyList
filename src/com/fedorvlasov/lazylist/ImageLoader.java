@@ -34,8 +34,6 @@ public class ImageLoader {
     final int stub_id=R.drawable.stub;
     public void DisplayImage(String url, ImageView imageView)
     {   //prevent the same url and imageview being fetched many times at the same time
-        String tag=imageViews.get(imageView);
-        if(tag != null && tag.equals(url))	return;
         
         imageViews.put(imageView, url);
         Bitmap bitmap=memoryCache.get(url);
@@ -122,6 +120,8 @@ public class ImageLoader {
         }
     }
     
+	private Map<Long, Boolean> RunningTask = Collections
+	.synchronizedMap(new WeakHashMap<Long, Boolean>());    
     class PhotosLoader implements Runnable {
         PhotoToLoad photoToLoad;
         PhotosLoader(PhotoToLoad photoToLoad){
@@ -132,7 +132,12 @@ public class ImageLoader {
         public void run() {
             if(imageViewReused(photoToLoad))
                 return;
+			long key = (long) photoToLoad.imageView.hashCode() + photoToLoad.url.hashCode();
+			Boolean isRunning = RunningTask.get(key);
+			if(isRunning != null && isRunning.equals(true)) return;
+        	RunningTask.put(key, true);            
             Bitmap bmp=getBitmap(photoToLoad.url);
+            RunningTask.remove(key);
             memoryCache.put(photoToLoad.url, bmp);
             if(imageViewReused(photoToLoad))
                 return;
