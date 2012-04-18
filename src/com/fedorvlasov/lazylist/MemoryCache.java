@@ -27,9 +27,14 @@ public class MemoryCache {
     }
 
     public Bitmap get(String id){
-        if(!cache.containsKey(id))
+        try{
+            if(!cache.containsKey(id))
+                return null;
+            //NullPointerException sometimes happen here http://code.google.com/p/osmdroid/issues/detail?id=78 
+            return cache.get(id);
+        }catch(NullPointerException ex){
             return null;
-        return cache.get(id);
+        }
     }
 
     public void put(String id, Bitmap bitmap){
@@ -43,7 +48,7 @@ public class MemoryCache {
             th.printStackTrace();
         }
     }
-
+    
     private void checkSize() {
         Log.i(TAG, "cache size="+size+" length="+cache.size());
         if(size>limit){
