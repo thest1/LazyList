@@ -138,8 +138,9 @@ public class ImageLoader {
 			if (imageViewReused(photoToLoad))
 				return;
 			BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad);
-			Activity a = (Activity) photoToLoad.imageView.getContext();
-			a.runOnUiThread(bd);
+			// Activity a = (Activity) photoToLoad.imageView.getContext();
+			// a.runOnUiThread(bd);
+			photoToLoad.imageView.post(bd);
 		}
 	}
 
