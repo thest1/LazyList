@@ -24,9 +24,16 @@ public class ImageLoader {
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
-    ExecutorService executorService; 
+    ExecutorService executorService;
+    private int required_size = 70;
     
     public ImageLoader(Context context){
+        fileCache=new FileCache(context);
+        executorService=Executors.newFixedThreadPool(5);
+    }
+    
+    public ImageLoader(Context context, int alternativeSize){
+    	this.required_size = alternativeSize;
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
@@ -89,11 +96,10 @@ public class ImageLoader {
             BitmapFactory.decodeStream(new FileInputStream(f),null,o);
             
             //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE=70;
             int width_tmp=o.outWidth, height_tmp=o.outHeight;
             int scale=1;
             while(true){
-                if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
+                if(width_tmp/2<required_size || height_tmp/2<required_size)
                     break;
                 width_tmp/=2;
                 height_tmp/=2;
