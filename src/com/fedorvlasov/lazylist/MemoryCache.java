@@ -66,6 +66,7 @@ public class MemoryCache {
 
     public void clear() {
         cache.clear();
+        size=0;
     }
 
     long getSizeInBytes(Bitmap bitmap) {
