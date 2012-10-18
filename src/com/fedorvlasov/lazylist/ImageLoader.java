@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -88,7 +89,9 @@ public class ImageLoader {
             //decode image size
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(new FileInputStream(f),null,o);
+            FileInputStream stream1=new FileInputStream(f);
+            BitmapFactory.decodeStream(stream1,null,o);
+            stream1.close();
             
             //Find the correct scale value. It should be the power of 2.
             final int REQUIRED_SIZE=70;
@@ -105,8 +108,15 @@ public class ImageLoader {
             //decode with inSampleSize
             BitmapFactory.Options o2 = new BitmapFactory.Options();
             o2.inSampleSize=scale;
-            return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
-        } catch (FileNotFoundException e) {}
+            FileInputStream stream2=new FileInputStream(f);
+            Bitmap bitmap=BitmapFactory.decodeStream(stream2, null, o2);
+            stream2.close();
+            return bitmap;
+        } catch (FileNotFoundException e) {
+        } 
+        catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
     
