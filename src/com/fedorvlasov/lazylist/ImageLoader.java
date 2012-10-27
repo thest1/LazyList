@@ -139,15 +139,19 @@ public class ImageLoader {
         
         @Override
         public void run() {
-            if(imageViewReused(photoToLoad))
-                return;
-            Bitmap bmp=getBitmap(photoToLoad.url);
-            memoryCache.put(photoToLoad.url, bmp);
-            if(imageViewReused(photoToLoad))
-                return;
-            BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
-            Activity a=(Activity)photoToLoad.imageView.getContext();
-            a.runOnUiThread(bd);
+            try{
+                if(imageViewReused(photoToLoad))
+                    return;
+                Bitmap bmp=getBitmap(photoToLoad.url);
+                memoryCache.put(photoToLoad.url, bmp);
+                if(imageViewReused(photoToLoad))
+                    return;
+                BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
+                Activity a=(Activity)photoToLoad.imageView.getContext();
+                a.runOnUiThread(bd);
+            }catch(Throwable th){
+                th.printStackTrace();
+            }
         }
     }
     
