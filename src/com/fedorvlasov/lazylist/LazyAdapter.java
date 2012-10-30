@@ -44,7 +44,7 @@ public class LazyAdapter extends BaseAdapter {
 		;
 		ImageView image = (ImageView) vi.findViewById(R.id.image);
 		text.setText("item " + position);
-		imageLoader.DisplayImage(data[position], image);
+		imageLoader.DisplayImage(data[position], image, R.drawable.stub);
 		return vi;
 	}
 }

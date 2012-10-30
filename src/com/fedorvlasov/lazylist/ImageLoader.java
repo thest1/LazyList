@@ -38,7 +38,7 @@ public class ImageLoader {
 		this.DisplayImage(url, imageView);
 	}
 
-	public void DisplayImage(String url, ImageView imageView) {
+	private void DisplayImage(String url, ImageView imageView) {
 		imageViews.put(imageView, url);
 		Bitmap bitmap = memoryCache.get(url);
 		if (bitmap != null)
