@@ -51,12 +51,17 @@ public class ImageLoader {
 	}
 
 	public void DisplayImage(String url, ImageView imageView) {
+		DisplayImage(url, imageView, false);
+	}
+
+	public void DisplayImage(String url, ImageView imageView, boolean allowDownload) {
 		imageViews.put(imageView, url);
 		Bitmap bitmap = memoryCache.get(url);
 		if (bitmap != null)
 			imageView.setImageBitmap(bitmap);
 		else {
-			queuePhoto(url, imageView);
+			if (allowDownload)
+				queuePhoto(url, imageView);
 			if (useStubResource || stubDrawable == null) {
 				imageView.setImageResource(stub_id);
 			} else {
