@@ -14,27 +14,44 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import android.os.Handler;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.widget.ImageView;
 
 public class ImageLoader {
     
+	private int scaleSize;
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
-    public ImageLoader(Context context){
+    protected ImageLoader(Context context) {
+    	// 70 was the default scaleSize.
+    	this(context, 70);
+    }
+    
+    /**
+     * Suggested scale size is the maximum size you may want to display the image.
+     * For example if you have a list of images 4 images wide, you would want
+     * scale size to be 1/4 the screen width - this ensures all images are less
+     * than this width, and not wasting space. Some may be scaled smaller than this,
+     * up to a minimum of half this size.
+     * @param context
+     * @param scaleSize
+     */
+    public ImageLoader(Context context, int scaleSize){
+    	scaleSize = scaleSize;
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
     
     final int stub_id=R.drawable.stub;
-    public void DisplayImage(String url, ImageView imageView)
+    public void DisplayImage(String url, ImageView imageView, boolean shouldScale)
     {
         imageViews.put(imageView, url);
         Bitmap bitmap=memoryCache.get(url);
@@ -42,23 +59,23 @@ public class ImageLoader {
             imageView.setImageBitmap(bitmap);
         else
         {
-            queuePhoto(url, imageView);
+            queuePhoto(url, imageView, shouldScale);
             imageView.setImageResource(stub_id);
         }
     }
         
-    private void queuePhoto(String url, ImageView imageView)
+    private void queuePhoto(String url, ImageView imageView, boolean shouldScale)
     {
-        PhotoToLoad p=new PhotoToLoad(url, imageView);
+        PhotoToLoad p=new PhotoToLoad(url, imageView, shouldScale);
         executorService.submit(new PhotosLoader(p));
     }
     
-    private Bitmap getBitmap(String url) 
+    private Bitmap getBitmap(String url, boolean shouldScale) 
     {
         File f=fileCache.getFile(url);
         
         //from SD cache
-        Bitmap b = decodeFile(f);
+        Bitmap b = decodeFile(f, shouldScale);
         if(b!=null)
             return b;
         
@@ -74,7 +91,7 @@ public class ImageLoader {
             OutputStream os = new FileOutputStream(f);
             Utils.CopyStream(is, os);
             os.close();
-            bitmap = decodeFile(f);
+            bitmap = decodeFile(f, shouldScale);
             return bitmap;
         } catch (Throwable ex){
            ex.printStackTrace();
@@ -85,34 +102,38 @@ public class ImageLoader {
     }
 
     //decodes image and scales it to reduce memory consumption
-    private Bitmap decodeFile(File f){
+    private Bitmap decodeFile(File f, boolean shouldScale){
         try {
-            //decode image size
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
-            FileInputStream stream1=new FileInputStream(f);
-            BitmapFactory.decodeStream(stream1,null,o);
-            stream1.close();
-            
-            //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE=70;
-            int width_tmp=o.outWidth, height_tmp=o.outHeight;
-            int scale=1;
-            while(true){
-                if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
-                    break;
-                width_tmp/=2;
-                height_tmp/=2;
-                scale*=2;
-            }
-            
-            //decode with inSampleSize
-            BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize=scale;
-            FileInputStream stream2=new FileInputStream(f);
-            Bitmap bitmap=BitmapFactory.decodeStream(stream2, null, o2);
-            stream2.close();
-            return bitmap;
+        	if(shouldScale){
+	            //decode image size
+	            BitmapFactory.Options o = new BitmapFactory.Options();
+	            o.inJustDecodeBounds = true;
+	            FileInputStream stream1=new FileInputStream(f);
+	            BitmapFactory.decodeStream(stream1,null,o);
+	            stream1.close();
+	            
+	            //Find the correct scale value. It should be the power of 2.
+	            final int REQUIRED_SIZE=scaleSize;
+	            int width_tmp=o.outWidth, height_tmp=o.outHeight;
+	            int scale=1;
+	            while(true){
+	                if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
+	                    break;
+	                width_tmp/=2;
+	                height_tmp/=2;
+	                scale*=2;
+	            }
+	            
+	            //decode with inSampleSize
+	            BitmapFactory.Options o2 = new BitmapFactory.Options();
+	            o2.inSampleSize=scale;
+	            FileInputStream stream2=new FileInputStream(f);
+	            Bitmap bitmap=BitmapFactory.decodeStream(stream2, null, o2);
+	            stream2.close();
+	            return bitmap;
+        	} else {
+        		return BitmapFactory.decodeStream(new FileInputStream(f));
+        	}
         } catch (FileNotFoundException e) {
         } 
         catch (IOException e) {
@@ -126,9 +147,11 @@ public class ImageLoader {
     {
         public String url;
         public ImageView imageView;
-        public PhotoToLoad(String u, ImageView i){
+        public boolean shouldScale;
+        public PhotoToLoad(String u, ImageView i, boolean s){
             url=u; 
             imageView=i;
+            shouldScale = s;
         }
     }
     
@@ -143,7 +166,7 @@ public class ImageLoader {
             try{
                 if(imageViewReused(photoToLoad))
                     return;
-                Bitmap bmp=getBitmap(photoToLoad.url);
+                Bitmap bmp=getBitmap(photoToLoad.url, photoToLoad.shouldScale);
                 memoryCache.put(photoToLoad.url, bmp);
                 if(imageViewReused(photoToLoad))
                     return;
