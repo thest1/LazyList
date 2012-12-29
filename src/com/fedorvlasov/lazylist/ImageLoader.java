@@ -30,7 +30,7 @@ public class ImageLoader {
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
-    protected ImageLoader(Context context) {
+    public ImageLoader(Context context) {
     	// 70 was the default scaleSize.
     	this(context, 70);
     }
@@ -45,7 +45,7 @@ public class ImageLoader {
      * @param scaleSize
      */
     public ImageLoader(Context context, int scaleSize){
-    	scaleSize = scaleSize;
+    	this.scaleSize = scaleSize;
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
