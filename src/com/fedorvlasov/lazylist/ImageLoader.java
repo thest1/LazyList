@@ -74,6 +74,7 @@ public class ImageLoader {
             OutputStream os = new FileOutputStream(f);
             Utils.CopyStream(is, os);
             os.close();
+            conn.disconnect();
             bitmap = decodeFile(f);
             return bitmap;
         } catch (Throwable ex){
