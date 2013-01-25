@@ -43,7 +43,7 @@ public class LazyAdapter extends BaseAdapter {
         TextView text=(TextView)vi.findViewById(R.id.text);;
         ImageView image=(ImageView)vi.findViewById(R.id.image);
         text.setText("item "+position);
-        imageLoader.DisplayImage(data[position], image, true);
+        imageLoader.DisplayImage(data[position], image, true, null);
         return vi;
     }
 }

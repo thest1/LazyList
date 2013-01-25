@@ -22,6 +22,10 @@ import android.os.Handler;
 import android.widget.ImageView;
 
 public class ImageLoader {
+	
+	public interface OnImageLoadFinishedListener {
+		public void onFinished();
+	}
     
 	private int scaleSize;
     MemoryCache memoryCache=new MemoryCache();
@@ -51,23 +55,24 @@ public class ImageLoader {
     }
     
     final int stub_id=R.drawable.stub;
-    public void DisplayImage(String url, ImageView imageView, boolean shouldScale)
+    public void DisplayImage(String url, ImageView imageView, boolean shouldScale, OnImageLoadFinishedListener listener)
     {
         imageViews.put(imageView, url);
         Bitmap bitmap=memoryCache.get(url);
-        if(bitmap!=null)
+        if(bitmap!=null) {
             imageView.setImageBitmap(bitmap);
-        else
+            if(listener != null) listener.onFinished();
+        } else
         {
-            queuePhoto(url, imageView, shouldScale);
+            queuePhoto(url, imageView, shouldScale, listener);
             imageView.setImageResource(stub_id);
         }
     }
         
-    private void queuePhoto(String url, ImageView imageView, boolean shouldScale)
+    private void queuePhoto(String url, ImageView imageView, boolean shouldScale, OnImageLoadFinishedListener listener)
     {
         PhotoToLoad p=new PhotoToLoad(url, imageView, shouldScale);
-        executorService.submit(new PhotosLoader(p));
+        executorService.submit(new PhotosLoader(p, listener));
     }
     
     private Bitmap getBitmap(String url, boolean shouldScale) 
@@ -157,8 +162,10 @@ public class ImageLoader {
     
     class PhotosLoader implements Runnable {
         PhotoToLoad photoToLoad;
-        PhotosLoader(PhotoToLoad photoToLoad){
+        OnImageLoadFinishedListener listener;
+        PhotosLoader(PhotoToLoad photoToLoad, OnImageLoadFinishedListener listener){
             this.photoToLoad=photoToLoad;
+            this.listener = listener;
         }
         
         @Override
@@ -170,7 +177,7 @@ public class ImageLoader {
                 memoryCache.put(photoToLoad.url, bmp);
                 if(imageViewReused(photoToLoad))
                     return;
-                BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
+                BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad, listener);
                 handler.post(bd);
             }catch(Throwable th){
                 th.printStackTrace();
@@ -190,7 +197,12 @@ public class ImageLoader {
     {
         Bitmap bitmap;
         PhotoToLoad photoToLoad;
-        public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
+        OnImageLoadFinishedListener listener;
+        public BitmapDisplayer(Bitmap b, PhotoToLoad p, OnImageLoadFinishedListener l){
+        	bitmap=b;
+        	photoToLoad=p;
+        	listener=l;
+    	}
         public void run()
         {
             if(imageViewReused(photoToLoad))
@@ -199,6 +211,7 @@ public class ImageLoader {
                 photoToLoad.imageView.setImageBitmap(bitmap);
             else
                 photoToLoad.imageView.setImageResource(stub_id);
+            if(listener!=null)listener.onFinished();
         }
     }
 
