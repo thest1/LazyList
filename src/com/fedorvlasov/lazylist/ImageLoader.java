@@ -109,6 +109,7 @@ public class ImageLoader {
     //decodes image and scales it to reduce memory consumption
     private Bitmap decodeFile(File f, boolean shouldScale){
         try {
+            Bitmap bitmap;
         	if(shouldScale){
 	            //decode image size
 	            BitmapFactory.Options o = new BitmapFactory.Options();
@@ -133,12 +134,14 @@ public class ImageLoader {
 	            BitmapFactory.Options o2 = new BitmapFactory.Options();
 	            o2.inSampleSize=scale;
 	            FileInputStream stream2=new FileInputStream(f);
-	            Bitmap bitmap=BitmapFactory.decodeStream(stream2, null, o2);
+	            bitmap=BitmapFactory.decodeStream(stream2, null, o2);
 	            stream2.close();
-	            return bitmap;
         	} else {
-        		return BitmapFactory.decodeStream(new FileInputStream(f));
+                FileInputStream stream = new FileInputStream(f);
+        		bitmap = BitmapFactory.decodeStream(stream);
+                stream.close();
         	}
+            return bitmap;
         } catch (FileNotFoundException e) {
         } 
         catch (IOException e) {
