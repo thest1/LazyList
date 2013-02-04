@@ -1,3 +1,15 @@
+#################
+## IntelliJ
+#################
+
+.idea
+*.iml
+*.ipr
+*.iws
+classes
+gen-external-apklibs
+out
+
 .DS_Store
 /bin
 /gen
