@@ -34,13 +34,18 @@ public class ImageLoader {
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
+    /**
+     * Utilizes the default scale size of 70.
+     * @param context
+     */
     public ImageLoader(Context context) {
     	// 70 was the default scaleSize.
     	this(context, 70);
     }
     
     /**
-     * Suggested scale size is the maximum size you may want to display the image.
+     * Suggested scale size is the maximum size you may want to display the image,
+     * in pixels. The image will be at most this high/wide.
      * For example if you have a list of images 4 images wide, you would want
      * scale size to be 1/4 the screen width - this ensures all images are less
      * than this width, and not wasting space. Some may be scaled smaller than this,
@@ -55,6 +60,46 @@ public class ImageLoader {
     }
     
     final int stub_id=R.drawable.stub;
+    
+    /**
+     * Loads the image at the URL into the ImageView. Scales image to be less than
+     * or equal to scaleSize set in the constructor, if specified - default is 70.
+     * @param url Url of the image to load.
+     * @param imageView ImageView to load the image into.
+     */
+    public void DisplayImage(String url, ImageView imageView) {
+    	DisplayImage(url, imageView, true);
+    }
+    
+    /**
+     * Loads the image at the URL into the ImageView.
+     * Optionally scales image to be less than or equal to scaleSize set in the 
+     * constructor, if specified - default is 70. Useful as there are cases where 
+     * you may not want the image to be scaled - for example a full size image with
+     * pinch-zoom.
+     * @param url Url of the image to load.
+     * @param imageView ImageView to load the image into.
+     * @param shouldScale Whether to scale the image or not.
+     */
+    public void DisplayImage(String url, ImageView imageView, boolean shouldScale) {
+    	DisplayImage(url, imageView, shouldScale, null);
+    }
+    
+    /**
+     * Loads the image at the URL into the ImageView.
+     * Optionally scales image to be less than or equal to scaleSize set in the 
+     * constructor, if specified - default is 70. Useful as there are cases where 
+     * you may not want the image to be scaled - for example a full size image with
+     * pinch-zoom.
+     * Will make a callback to a supplied {@link OnImageLoadFinishedListener} when 
+     * the image has finished loading, useful if you want to disable a loading 
+     * spinner etc.
+     * @param url Url of the image to load.
+     * @param imageView ImageView to load the image into.
+     * @param shouldScale Whether to scale the image or not.
+     * @param listener An {@link OnImageLoadFinishedListener} to make a callback to
+     * when the image has finished loading.
+     */
     public void DisplayImage(String url, ImageView imageView, boolean shouldScale, OnImageLoadFinishedListener listener)
     {
         imageViews.put(imageView, url);
