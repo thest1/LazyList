@@ -28,7 +28,21 @@ public class ImageLoader {
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
-    public ImageLoader(Context context){
+    private static ImageLoader instance;
+
+    public static ImageLoader getInstance(Context context) {
+        if (instance == null)
+            instance = new ImageLoader(context);
+        return instance;
+    }
+
+    public static ImageLoader getInstance() {
+        if (instance == null)
+            instance = new ImageLoader(ApplicationContext.getContext());
+        return instance;
+    }
+
+    private ImageLoader(Context context){
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
