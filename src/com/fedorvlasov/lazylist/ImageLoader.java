@@ -28,12 +28,23 @@ public class ImageLoader {
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
+    private int stub_id=R.drawable.stub;
+    
     public ImageLoader(Context context){
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
     
-    final int stub_id=R.drawable.stub;
+    public ImageLoader(Context context, int drawable) {
+    	fileCache=new FileCache(context);
+        executorService=Executors.newFixedThreadPool(5);
+        stub_id = drawable;
+    }
+    
+    public void SetDefaultImage(int drawable) {
+    	stub_id = drawable;
+    }
+    
     public void DisplayImage(String url, ImageView imageView)
     {
         imageViews.put(imageView, url);
