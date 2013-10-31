@@ -20,6 +20,17 @@ Don't forget to add the following permissions to your AndroidManifest.xml:
     
 Please create only one instance of ImageLoader and reuse it all around your application. This way image caching will be much more efficient.
 
+## Features 
+Set a default image
+``` java
+ImageLoader imageLoad = new ImageLoader(context, drawableID);
+```
+or
+``` java
+ImageLoader imageLoader=new ImageLoader(context);
+imageLoader.SetDefaultImage(drawableID);
+```
+
 ## License
 
 LazyList is released under the <a href="https://github.com/thest1/LazyList/blob/master/LICENSE">MIT license</a>.
