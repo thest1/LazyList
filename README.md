@@ -23,10 +23,9 @@ Please create only one instance of ImageLoader and reuse it all around your appl
 ## Features 
 Set a default image
 ``` java
+// at the constructor
 ImageLoader imageLoad = new ImageLoader(context, drawableID);
-```
-or
-``` java
+// or
 ImageLoader imageLoader=new ImageLoader(context);
 imageLoader.SetDefaultImage(drawableID);
 ```
