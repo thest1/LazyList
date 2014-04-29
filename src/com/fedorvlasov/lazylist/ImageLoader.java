@@ -22,6 +22,8 @@ import android.widget.ImageView;
 
 public class ImageLoader {
     
+	public static int REQUIRED_SIZE = 512;
+	
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
@@ -107,7 +109,7 @@ public class ImageLoader {
             stream1.close();
             
             //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE=70;
+            final int REQUIRED_SIZE=ImageLoader.REQUIRED_SIZE;
             int width_tmp=o.outWidth, height_tmp=o.outHeight;
             int scale=1;
             while(true){
