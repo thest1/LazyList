@@ -22,7 +22,7 @@ import android.widget.ImageView;
 
 public class ImageLoader {
     
-	public static int REQUIRED_SIZE = 512;
+	public static int REQUIRED_SIZE = 256;
 	
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
