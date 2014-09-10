@@ -22,18 +22,31 @@ import android.widget.ImageView;
 
 public class ImageLoader {
     
+	public static int REQUIRED_SIZE = 256;
+	
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
+    private int stub_id=R.drawable.stub;
+    
     public ImageLoader(Context context){
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
     
-    final int stub_id=R.drawable.stub;
+    public ImageLoader(Context context, int drawable) {
+    	fileCache=new FileCache(context);
+        executorService=Executors.newFixedThreadPool(5);
+        stub_id = drawable;
+    }
+    
+    public void SetDefaultImage(int drawable) {
+    	stub_id = drawable;
+    }
+    
     public void DisplayImage(String url, ImageView imageView)
     {
         imageViews.put(imageView, url);
@@ -96,7 +109,7 @@ public class ImageLoader {
             stream1.close();
             
             //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE=70;
+            final int REQUIRED_SIZE=ImageLoader.REQUIRED_SIZE;
             int width_tmp=o.outWidth, height_tmp=o.outHeight;
             int scale=1;
             while(true){
