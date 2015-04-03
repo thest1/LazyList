@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import android.os.Handler;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,6 +27,9 @@ public class ImageLoader {
     MemoryCache memoryCache=new MemoryCache();
     FileCache fileCache;
     private Map<ImageView, String> imageViews=Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
+    //add for cancel loadimage
+    private Map<String, Future<mFutureCallback>> futures = Collections.synchronizedMap(new WeakHashMap<String, Future<mFutureCallback>>());
+    //
     ExecutorService executorService;
     Handler handler=new Handler();//handler to display images in UI thread
     
@@ -32,7 +37,43 @@ public class ImageLoader {
         fileCache=new FileCache(context);
         executorService=Executors.newFixedThreadPool(5);
     }
-    
+    //add position start here
+    public void addFuture(String url, Future<mFutureCallback> temp){
+        if(futures.get(url)!=null)
+            futures.remove(url);
+        futures.put(url, temp);
+    }
+
+    public boolean isCancelledFuture(String url){
+        Future<mFutureCallback> temp = futures.get(url);
+        if(temp == null)
+            return true;
+        return temp.isCancelled();
+    }
+
+    public void cancelFuture(String url){
+        Future<mFutureCallback> temp = futures.get(url);
+        if(temp == null)
+            return;
+        temp.cancel(true);
+        removeFuture(url);
+    }
+
+    public void removeFuture(String url){
+        Future<mFutureCallback> temp = futures.get(url);
+        if(temp == null)
+            return ;
+        futures.remove(url);
+    }
+
+    public boolean isDoneProcess(String url){
+        Future<mFutureCallback> temp = futures.get(url);
+        if(temp == null)
+            return true;
+        return temp.isDone();
+    }
+    // end code
+
     final int stub_id=R.drawable.stub;
     public void DisplayImage(String url, ImageView imageView)
     {
@@ -50,7 +91,8 @@ public class ImageLoader {
     private void queuePhoto(String url, ImageView imageView)
     {
         PhotoToLoad p=new PhotoToLoad(url, imageView);
-        executorService.submit(new PhotosLoader(p));
+        //fix code to add future
+        addFuture(url, executorService.submit(new PhotosLoader(p), new mFutureCallback(url)));
     }
     
     private Bitmap getBitmap(String url) 
@@ -153,13 +195,16 @@ public class ImageLoader {
             }catch(Throwable th){
                 th.printStackTrace();
             }
+            removeFuture(photoToLoad.url); // remove ended future
         }
     }
     
     boolean imageViewReused(PhotoToLoad photoToLoad){
         String tag=imageViews.get(photoToLoad.imageView);
-        if(tag==null || !tag.equals(photoToLoad.url))
+        if(tag==null || !tag.equals(photoToLoad.url)) {
+            cancelFuture(photoToLoad.url); // remove don't use future
             return true;
+        }
         return false;
     }
     
@@ -172,6 +217,9 @@ public class ImageLoader {
         public void run()
         {
             if(imageViewReused(photoToLoad))
+                return;
+            //if cancel process, stop setImage. to delay;
+            if(isCancelledFuture(photoToLoad.url))
                 return;
             if(bitmap!=null)
                 photoToLoad.imageView.setImageBitmap(bitmap);
