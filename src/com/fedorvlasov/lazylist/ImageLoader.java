@@ -55,28 +55,35 @@ public class ImageLoader {
     
     private Bitmap getBitmap(String url) 
     {
-        File f=fileCache.getFile(url);
-        
-        //from SD cache
-        Bitmap b = decodeFile(f);
-        if(b!=null)
-            return b;
-        
-        //from web
-        try {
-            Bitmap bitmap=null;
+        try{
+        	Bitmap b;
+            File f=fileCache.getFile(url);
             URL imageUrl = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
+
+            HttpUrlConnection conn = (HttpURLConnection)imageUrl.openConnection();
             conn.setConnectTimeout(30000);
             conn.setReadTimeout(30000);
             conn.setInstanceFollowRedirects(true);
+
+            //check if the file has been modified on server
+            if(conn.getLastModified() == f.lastModified()) {
+
+                //from SD cache
+                b = decodeFile(f);
+                if(b!=null) {
+                    conn.disconnect();
+                    return b;
+                }
+            }
+
+            //from web
             InputStream is=conn.getInputStream();
             OutputStream os = new FileOutputStream(f);
             Utils.CopyStream(is, os);
             os.close();
             conn.disconnect();
-            bitmap = decodeFile(f);
-            return bitmap;
+            b = decodeFile(f);
+            return b;
         } catch (Throwable ex){
            ex.printStackTrace();
            if(ex instanceof OutOfMemoryError)
