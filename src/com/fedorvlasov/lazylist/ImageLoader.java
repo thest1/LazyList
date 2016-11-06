@@ -65,8 +65,10 @@ public class ImageLoader {
             conn.setReadTimeout(30000);
             conn.setInstanceFollowRedirects(true);
 
+            long lastModified = conn.getLastModified();
+
             //check if the file has been modified on server
-            if(conn.getLastModified() == f.lastModified()) {
+            if(lastModified == f.lastModified()) {
 
                 //from SD cache
                 b = decodeFile(f);
@@ -82,6 +84,10 @@ public class ImageLoader {
             Utils.CopyStream(is, os);
             os.close();
             conn.disconnect();
+
+            // To prevent errors in case client's timestamp is not synced with server
+            f.setLastModified(lastModified);
+            
             b = decodeFile(f);
             return b;
         } catch (Throwable ex){
